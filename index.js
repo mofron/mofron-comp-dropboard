@@ -45,7 +45,25 @@ mofron.comp.DropBoard = class extends mofron.Component {
                                 drp.dropped(cmp);
                             } else if ( ('dragleave' === tp) &&
                                         (null        !== mofron.effect.draggable_comp) ) {
-                                drp.dragLeave(mofron.effect.draggable_comp);
+                                drp.isDragOver(false);
+                                setTimeout(
+                                    (drp, cmp) => {
+                                        try {
+                                            if (true === drp.isDragOver()) {
+                                                return;
+                                            }
+                                            drp.dragLeave(cmp);
+                                        } catch (e) {
+                                            console.error(e.stack);
+                                            throw e;
+                                        }
+                                    },
+                                    100,
+                                    drp,
+                                    mofron.effect.draggable_comp
+                                );
+                            } else if ('dragover' === tp) {
+                                drp.isDragOver(true);
                             }
                         } catch (e) {
                             console.error(e.stack);
@@ -73,7 +91,7 @@ mofron.comp.DropBoard = class extends mofron.Component {
             }
             this.event([
                 new mofron.event.Drag({
-                    addType : ['dragenter', 'dragleave'],
+                    addType : ['dragenter', 'dragleave', 'dragover'],
                     handler : drag_evt
                 })
             ]);
@@ -98,6 +116,23 @@ mofron.comp.DropBoard = class extends mofron.Component {
                 width  : ('number' === typeof wid) ? wid + 'px' : wid,
                 height : ('number' === typeof hei) ? hei + 'px' : hei
             });
+        } catch (e) {
+            console.error(e.stack);
+            throw e;
+        }
+    }
+    
+    isDragOver (flg) {
+        try {
+            if (undefined === flg) {
+                /* getter */
+                return (undefined === this.m_dragover) ? false : this.m_dragover;
+            }
+            /* setter */
+            if ('boolean' !== typeof flg) {
+                throw new Error('invalid parameter');
+            }
+            this.m_dragover = flg;
         } catch (e) {
             console.error(e.stack);
             throw e;
