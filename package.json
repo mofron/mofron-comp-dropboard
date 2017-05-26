@@ -1,0 +1,22 @@
+{
+  "name": "mofron-comp-dropboard",
+  "version": "0.0.1",
+  "description": "dropboard component for mofron",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/simpart/mofron-comp-dropboard.git"
+  },
+  "keywords": [
+    "mofron"
+  ],
+  "author": "simparts",
+  "license": "SEE LICENSE IN LICENSE",
+  "bugs": {
+    "url": "https://github.com/simpart/mofron-comp-dropboard/issues"
+  },
+  "homepage": "https://github.com/simpart/mofron-comp-dropboard#readme"
+}
