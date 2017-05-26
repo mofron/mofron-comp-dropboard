@@ -88,21 +88,15 @@ mofron.comp.DropBoard = class extends mofron.Component {
         try {
             if (undefined === wid) {
                 /* getter */
-                return (undefined === this.m_size) ? null : this.m_size;
+                return [
+                    mofron.func.getLength(this.style('width')),
+                    mofron.func.getLength(this.style('height'))
+                ];
             }
             /* setter */
-            if ( (('number' !== typeof wid) && ('string' !== typeof wid)) ||
-                 (('number' !== typeof hei) && ('string' !== typeof hei)) ) {
-                throw new Error('invalid parameter');
-            }
-            if (undefined === this.m_size) {
-                this.m_size = [null, null];
-            }
-            this.m_size[0] = wid;
-            this.m_size[1] = hei;
-            this.styleTgt().style({
-                'width'  : wid + 'px',
-                'height' : hei + 'px'
+            this.style({
+                width  : ('number' === typeof wid) ? wid + 'px' : wid,
+                height : ('number' === typeof hei) ? hei + 'px' : hei
             });
         } catch (e) {
             console.error(e.stack);
