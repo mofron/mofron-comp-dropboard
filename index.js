@@ -157,6 +157,10 @@ mofron.comp.DropBoard = class extends mofron.Component {
     dragEnter (cmp) {
         try {
             /* dragenter event */
+            let eff = this.effect();
+            for (let eff_idx in eff) {
+                eff[eff_idx][0].execute(true);
+            }
         } catch (e) {
             console.error(e.stack);
             throw e;
@@ -166,6 +170,10 @@ mofron.comp.DropBoard = class extends mofron.Component {
     dragLeave (cmp) {
         try {
             /* dragleave event */
+            let eff = this.effect();
+            for (let eff_idx in eff) {
+                eff[eff_idx][0].execute(false);
+            }
         } catch (e) {
             console.error(e.stack);
             throw e;
