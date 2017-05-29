@@ -31,71 +31,69 @@ mofron.comp.DropBoard = class extends mofron.Component {
             super.initDomConts (prm);
             
             /* set drag event */
-            let drag_evt = (tgt, tp, prm) => {
+            let drg_core = (tgt, tp, brd, drp_cmp) => {
                 try {
-                    let evt = (cmp, tp, drp) => {
-                        try {
-                            //mofron.effect.draggable_comp;
-                            if ( ('dragenter' === tp) &&
-                                 (null        !== mofron.effect.draggable_comp) ) {
-                                drp.dragEnter(mofron.effect.draggable_comp);
-                            } else if ( ('dragleave' === tp) &&
-                                        (null      === mofron.effect.draggable_comp) &&
-                                        (null      !== cmp) ) {
-                                drp.dropped(cmp);
-                            } else if ( ('dragleave' === tp) &&
-                                        (null        !== mofron.effect.draggable_comp) ) {
-                                drp.isDragOver(false);
-                                setTimeout(
-                                    (drp, cmp) => {
-                                        try {
-                                            if (true === drp.isDragOver()) {
-                                                return;
-                                            }
-                                            drp.dragLeave(cmp);
-                                        } catch (e) {
-                                            console.error(e.stack);
-                                            throw e;
-                                        }
-                                    },
-                                    100,
-                                    drp,
-                                    mofron.effect.draggable_comp
-                                );
-                            } else if ('dragover' === tp) {
-                                drp.isDragOver(true);
-                            }
-                        } catch (e) {
-                            console.error(e.stack);
-                            throw e;
+                    if ( ('dragenter' === tp) &&
+                         (null        !== mofron.effect.draggable_comp) ) {
+                        brd.dragEnter(mofron.effect.draggable_comp);
+                    } else if ('dragleave' === tp) {
+                        if (null === drp_cmp) {
+                            console.warn('drag-component is null');
+                            return;
                         }
-                    };
+                        if (false === brd.isDragOver()) {
+                            setTimeout(
+                                (tgt, tp, brd, drp_cmp) => {
+                                    try {
+                                        if (true === brd.isDropped()) {
+                                            return;
+                                        }
+                                        brd.dragLeave(drp_cmp);
+                                    } catch (e) {
+                                        console.error(e.stack);
+                                        throw e;
+                                    }
+                                },
+                                50,
+                                tgt, tp, brd, drp_cmp
+                            );
+                        }
+                        if ( (null === mofron.effect.draggable_comp)) {
+                            brd.isDropped(true);
+                            brd.dropped(drp_cmp);
+                        }
+                    }
+                } catch (e) {
+                    console.error(e.stack);
+                    throw e;
+                }
+            }
+            
+            let drg_evt = (tgt, tp, prm) => {
+                try {
+                    if ('dragover' === tp) {
+                        prm.isDragOver(true);
+                    } else if ('dragleave' === tp) {
+                        prm.isDragOver(false);
+                        prm.isDropped(false);
+                    }
                     setTimeout(
-                        (cmp, tp,drp) => {
-                            try {
-                                evt(cmp, tp, drp);
-                            } catch (e) {
-                                console.error(e.stack);
-                                throw e;
-                            }
-                        },
+                        drg_core,
                         100,
-                        mofron.effect.draggable_comp,
-                        tp,
-                        this
+                        tgt, tp, prm, mofron.effect.draggable_comp
                     );
                 } catch (e) {
                     console.error(e.stack);
                     throw e;
                 }
             }
+            
             this.event([
                 new mofron.event.Drag({
                     addType : ['dragenter', 'dragleave', 'dragover'],
-                    handler : drag_evt
+                    handler : new mofron.Param(drg_evt, this)
                 })
             ]);
-            
         } catch (e) {
             console.error(e.stack);
             throw e;
@@ -133,6 +131,23 @@ mofron.comp.DropBoard = class extends mofron.Component {
                 throw new Error('invalid parameter');
             }
             this.m_dragover = flg;
+        } catch (e) {
+            console.error(e.stack);
+            throw e;
+        }
+    }
+    
+    isDropped (flg) {
+        try {
+            if (undefined === flg) {
+                /* getter */
+                return (undefined === this.m_dropped) ? false : this.m_dropped;
+            }
+            /* setter */
+            if ('boolean' !== typeof flg) {
+                throw new Error('invalid parameter');
+            }
+            this.m_dropped = flg;
         } catch (e) {
             console.error(e.stack);
             throw e;
