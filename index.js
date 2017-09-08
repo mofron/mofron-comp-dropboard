@@ -60,7 +60,7 @@ mofron.comp.DropBoard = class extends mofron.Component {
                         }
                         if ( (null === mofron.effect.draggable_comp)) {
                             brd.isDropped(true);
-                            brd.dropped(drp_cmp);
+                            brd.dropped_ctl(drp_cmp);
                         }
                     }
                 } catch (e) {
@@ -180,14 +180,57 @@ mofron.comp.DropBoard = class extends mofron.Component {
         }
     }
     
+    dropped_ctl (cmp) {
+        try {
+            let chd = this.child();
+            for (let chd_idx in chd) {
+                if (chd[chd_idx].getId() === cmp.getId()) {
+                    return;
+                }
+            }
+            this.dropped(cmp);
+        } catch (e) {
+            console.error(e.stack);
+            throw e;
+        }
+    }
+    
     dropped (cmp) {
         try {
             /* dragend event on this component */
+            let devt = this.dropEvent();
+            for (let d_idx in devt) {
+                devt[d_idx][0](cmp, devt[d_idx][1]);
+            }
         } catch (e) {
             console.error(e.stack);
             throw e;
         }
     } 
+    
+    addDropEvent (evt, prm) {
+        try {
+            if ('function' !== typeof evt) {
+                throw new Error('invalid parameter');
+            }
+            if (undefined === this.m_dropevt) {
+                this.m_dropevt = new Array();
+            }
+            this.m_dropevt.push([evt, prm]);
+        } catch (e) {
+            console.error(e.stack);
+            throw e;
+        }
+    }
+    
+    dropEvent () {
+        try {
+            return (undefined === this.m_dropevt) ? null : this.m_dropevt;
+        } catch (e) {
+            console.error(e.stack);
+            throw e;
+        }
+    }
 }
 mofron.comp.dropboard = {};
 module.exports = mofron.comp.DropBoard;
