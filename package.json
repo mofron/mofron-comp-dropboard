@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/simpart/mofron-comp-dropboard.git"
+    "url": "git+https://github.com/mofron/mofron-comp-dropboard.git"
   },
   "dependencies": {
     "mofron-event-drag" : ""
@@ -19,7 +19,7 @@
   "author": "simparts",
   "license": "SEE LICENSE IN LICENSE",
   "bugs": {
-    "url": "https://github.com/simpart/mofron-comp-dropboard/issues"
+    "url": "https://github.com/mofron/mofron-comp-dropboard/issues"
   },
-  "homepage": "https://github.com/simpart/mofron-comp-dropboard#readme"
+  "homepage": "https://github.com/mofron/mofron-comp-dropboard#readme"
 }
