@@ -2,19 +2,22 @@
  * @file   mofron-comp-dropboard/index.js
  * @author simpart
  */
-require('mofron-event-drag');
+let mf = require('mofron');
+let Drag   = require('mofron-event-drag');
+let Drgeff = require('mofron-effect-draggable');
 
 /**
  * @class mofron.comp.DropBoard
  * @brief DropBoard component for mofron
  */
-mofron.comp.DropBoard = class extends mofron.Component {
+mf.comp.DropBoard = class extends mf.Component {
     
-    constructor (prm_opt) {
+    constructor (po) {
         try {
             super();
             this.name('DropBoard');
-            this.prmOpt(prm_opt);
+            this.m_tempkey = new Drgeff().getTempKey();
+            this.prmOpt(po);
         } catch (e) {
             console.error(e.stack);
             throw e;
@@ -31,36 +34,24 @@ mofron.comp.DropBoard = class extends mofron.Component {
             super.initDomConts (prm);
             
             /* set drag event */
-            let drg_core = (tgt, tp, brd, drp_cmp) => {
+            let drg_core = (tgt, tp, drp_cmp) => {
                 try {
+                    let chk_drp_cmp = mf.func.getTemp(tgt.m_tempkey);
                     if ( ('dragenter' === tp) &&
-                         (null        !== mofron.effect.draggable_comp) ) {
-                        brd.dragEnter(mofron.effect.draggable_comp);
+                         (null !== chk_drp_cmp) ) {
+                        /* notify drag-enter event */
+                        tgt.dragEnter(chk_drp_cmp);
                     } else if ('dragleave' === tp) {
                         if (null === drp_cmp) {
                             console.warn('drag-component is null');
                             return;
                         }
-                        if (false === brd.isDragOver()) {
-                            setTimeout(
-                                (tgt, tp, brd, drp_cmp) => {
-                                    try {
-                                        if (true === brd.isDropped()) {
-                                            return;
-                                        }
-                                        brd.dragLeave(drp_cmp);
-                                    } catch (e) {
-                                        console.error(e.stack);
-                                        throw e;
-                                    }
-                                },
-                                50,
-                                tgt, tp, brd, drp_cmp
-                            );
-                        }
-                        if ( (null === mofron.effect.draggable_comp)) {
-                            brd.isDropped(true);
-                            brd.dropped_ctl(drp_cmp);
+                        
+                        if (null === mf.func.getTemp(tgt.m_tempkey)) {
+                            //tgt.isDropped(true);
+                            tgt.dropped(drp_cmp);
+                        } else {
+                            tgt.dragLeave(drp_cmp);
                         }
                     }
                 } catch (e) {
@@ -69,31 +60,24 @@ mofron.comp.DropBoard = class extends mofron.Component {
                 }
             }
             
-            let drg_evt = (tgt, tp, prm) => {
-                try {
-                    if ('dragover' === tp) {
-                        prm.isDragOver(true);
-                    } else if ('dragleave' === tp) {
-                        prm.isDragOver(false);
-                        prm.isDropped(false);
+            let drg_evt = new Drag({
+                addType : ['dragenter', 'dragleave', 'dragover'],
+                handler : (tgt, tp) => {
+                    try {
+                        setTimeout(
+                            drg_core,
+                            100,
+                            tgt,
+                            tp,
+                            mf.func.getTemp(this.m_tempkey)
+                        );
+                    } catch (e) {
+                        console.error(e.stack);
+                        throw e;
                     }
-                    setTimeout(
-                        drg_core,
-                        100,
-                        tgt, tp, prm, mofron.effect.draggable_comp
-                    );
-                } catch (e) {
-                    console.error(e.stack);
-                    throw e;
                 }
-            }
-            
-            this.event([
-                new mofron.event.Drag({
-                    addType : ['dragenter', 'dragleave', 'dragover'],
-                    handler : new mofron.Param(drg_evt, this)
-                })
-            ]);
+            });
+            this.addEvent(drg_evt);
         } catch (e) {
             console.error(e.stack);
             throw e;
@@ -105,8 +89,8 @@ mofron.comp.DropBoard = class extends mofron.Component {
             if (undefined === wid) {
                 /* getter */
                 return [
-                    mofron.func.getLength(this.style('width')),
-                    mofron.func.getLength(this.style('height'))
+                    mf.func.getLength(this.style('width')),
+                    mf.func.getLength(this.style('height'))
                 ];
             }
             /* setter */
@@ -120,40 +104,9 @@ mofron.comp.DropBoard = class extends mofron.Component {
         }
     }
     
-    isDragOver (flg) {
-        try {
-            if (undefined === flg) {
-                /* getter */
-                return (undefined === this.m_dragover) ? false : this.m_dragover;
-            }
-            /* setter */
-            if ('boolean' !== typeof flg) {
-                throw new Error('invalid parameter');
-            }
-            this.m_dragover = flg;
-        } catch (e) {
-            console.error(e.stack);
-            throw e;
-        }
-    }
-    
-    isDropped (flg) {
-        try {
-            if (undefined === flg) {
-                /* getter */
-                return (undefined === this.m_dropped) ? false : this.m_dropped;
-            }
-            /* setter */
-            if ('boolean' !== typeof flg) {
-                throw new Error('invalid parameter');
-            }
-            this.m_dropped = flg;
-        } catch (e) {
-            console.error(e.stack);
-            throw e;
-        }
-    }
-    
+    /**
+     * enable effect when component was entered in dragg.
+     */
     dragEnter (cmp) {
         try {
             /* dragenter event */
@@ -167,6 +120,9 @@ mofron.comp.DropBoard = class extends mofron.Component {
         }
     }
     
+    /**
+     * disable effect when component was leaved in drag.
+     */
     dragLeave (cmp) {
         try {
             /* dragleave event */
@@ -174,21 +130,6 @@ mofron.comp.DropBoard = class extends mofron.Component {
             for (let eff_idx in eff) {
                 eff[eff_idx][0].execute(false);
             }
-        } catch (e) {
-            console.error(e.stack);
-            throw e;
-        }
-    }
-    
-    dropped_ctl (cmp) {
-        try {
-            let chd = this.child();
-            for (let chd_idx in chd) {
-                if (chd[chd_idx].getId() === cmp.getId()) {
-                    return;
-                }
-            }
-            this.dropped(cmp);
         } catch (e) {
             console.error(e.stack);
             throw e;

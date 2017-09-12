@@ -1,6 +1,6 @@
 {
   "name": "mofron-comp-dropboard",
-  "version": "0.0.7",
+  "version": "0.1.0",
   "description": "dropboard component for mofron",
   "main": "index.js",
   "scripts": {
@@ -11,7 +11,8 @@
     "url": "git+https://github.com/mofron/mofron-comp-dropboard.git"
   },
   "dependencies": {
-    "mofron-event-drag" : ""
+    "mofron-event-drag" : "",
+    "mofron-effect-draggable" : ""
   },
   "keywords": [
     "mofron"
